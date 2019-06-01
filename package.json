@@ -1,0 +1,19 @@
+{
+  "name": "GraphQLBackend",
+  "version": "1.0.0",
+  "description": "Sample GraphQL Set up",
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
+  "main": "app.js",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.8.0",
+    "graphql": "^14.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
