@@ -21,7 +21,7 @@ const userResolvers = {
       if (isUserExisting) {
         throw new Error('Email already in used.')
       }
-      console.log(SALT_ROUND)
+
       const hashedPassword = await bcrypt.hash(password, Number(SALT_ROUND))
       const user = new User({
         email,
