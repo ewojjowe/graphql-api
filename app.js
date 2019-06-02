@@ -1,4 +1,3 @@
-// NPM packages
 require('dotenv').config()
 
 const express = require('express')
@@ -6,16 +5,11 @@ const bodyParser = require('body-parser')
 const graphqlHTTP = require('express-graphql')
 const mongoose = require('mongoose')
 
-// Resolvers
-const resolver = require('./graphql/resolver')
+const graphQlResolver = require('./graphql/resolver')
+const graphQlSchema = require('./graphql/schema')
 
-// Schema
-const schema = require('./graphql/schema')
-
-// express app
 const app = express()
 
-// env variables
 const {
 	PORT,
 	HOST,
@@ -25,10 +19,8 @@ const {
 	DB_NAME
 } = process.env
 
-// parse req body to json data
 app.use(bodyParser.json())
 
-// set up database connection
 mongoose.connect(
 	`mongodb+srv://${USERNAME}:${PASSWORD}@${CLUSTER}/${DB_NAME}?retryWrites=true&w=majority`,
 	{useNewUrlParser: true}
@@ -38,14 +30,12 @@ mongoose.connect(
 	console.log('Error: ', err)
 })
 
-// graphql endpoint
 app.use('/graphql', graphqlHTTP({
-	schema,
-	rootValue: resolver,
+	schema: graphQlSchema,
+	rootValue: graphQlResolver,
 	graphiql: true
 }))
 
-// listineng server
 app.listen(PORT, () => {
 	console.log(`Server running at http://${HOST}:${PORT}`)
 })

@@ -2,20 +2,27 @@
 const Event = require('../../models/events')
 
 // Utils
-const {findAllEvents} = require('../../utils/event')
-const {findUserByID} = require('../../utils/user')
+const {
+  findAllEvents,
+  userUtils,
+  findUserById
+} = require('../../utils')
 
 const eventResolvers = {
   events: async () => {
     try {
       const events = await findAllEvents()
-
-      return events.map((event) => {
+      const result = events.map(async (event) => {
         const {_doc} = event
-        const creator = findUserByID(_doc.creator)
 
-        return {..._doc, creator}
+        return {
+          ..._doc,
+          date: new Date(_doc.date).toISOString(),
+          creator: userUtils.bind(this, _doc.creator)
+        }
       })
+
+      return result
     } catch (err) {
       throw err
     }
@@ -34,10 +41,10 @@ const eventResolvers = {
         description,
         price: +price,
         date: new Date(date),
-        creator: '5cf392499d5aa53154ff3010'
+        creator: '5cf3dfc44dff4835ee143294'
       })
 
-      const user = await findUserByID('5cf392499d5aa53154ff3010')
+      const user = await findUserById('5cf3dfc44dff4835ee143294')
 
       if (!user) {
         throw new Error('Please Login')
@@ -50,7 +57,7 @@ const eventResolvers = {
 
       return {
         ...result._doc,
-        creator: {...user._doc}
+        creator: userUtils.bind(this, user.id)
       }
     } catch (err) {
       throw err
