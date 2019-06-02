@@ -1,33 +1,14 @@
+require('dotenv').config()
+
 const bcrypt = require('bcryptjs')
 
-// models
 const User = require('../../models/users')
 
-// Utils
-const {findEventById} = require('../../utils/event')
-const {
-  findAllUsers,
-  findUserByEmail
-} = require('../../utils/user')
+const {findUserByEmail} = require('../../utils')
+
+const {SALT_ROUND} = process.env
 
 const userResolvers = {
-  users: async () => {
-    try {
-
-      const users = await findAllUsers()
-
-      return users.map((user) => {
-        const {_doc} = user
-        const createdEvents = _doc.createdEvents.map(async (eventId) => {
-          return await findEventById(eventId)
-        })
-
-        return {..._doc, createdEvents}
-      })
-    } catch (err) {
-      throw err
-    }
-  },
   createUser: async (args) => {
     const {
       email,
@@ -40,14 +21,19 @@ const userResolvers = {
       if (isUserExisting) {
         throw new Error('Email already in used.')
       }
-
-      const hashedPassword = await bcrypt.hash(password, 12)
+      console.log(SALT_ROUND)
+      const hashedPassword = await bcrypt.hash(password, Number(SALT_ROUND))
       const user = new User({
         email,
         password: hashedPassword
       })
 
-      return await user.save()
+      await user.save()
+
+      return {
+        ...user._doc,
+        password: null
+      }
     } catch (err) {
       throw err
     }

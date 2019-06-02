@@ -1,9 +1,9 @@
 const eventResolvers = require('./event')
 const userResolvers = require('./user')
 
-const resolver = {
+const graphQlResolver = {
   ...eventResolvers,
   ...userResolvers
 }
 
-module.exports = resolver
+module.exports = graphQlResolver
