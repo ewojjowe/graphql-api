@@ -3,8 +3,9 @@ const Booking = require('../../models/bookings')
 
 // Utils
 const {
+  deleteBookindById,
   singleEventUtils,
-  findBookingById,
+  findBookingByIdWithEvent,
   findEventById,
   getAllBooking,
   userUtils
@@ -57,11 +58,15 @@ const eventResolvers = {
   cancelBooking: async (args) => {
     const {bookingId} = args
     try {
-      const booking = await findBookingById(bookingId).populate('event')
+      const booking = await findBookingByIdWithEvent(bookingId)
+      console.log(booking)
       const event = {
-        ...booking.event,
+        ...booking.event._doc,
         creator: userUtils.bind(this, booking.event._doc.creator)
       }
+
+      await deleteBookindById(bookingId)
+      return event
     } catch (err) {
       throw err
     }
