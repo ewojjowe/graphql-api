@@ -1,9 +1,7 @@
 require('dotenv').config()
-
 const bcrypt = require('bcryptjs')
 
 const User = require('../../models/users')
-
 const {findUserByEmail} = require('../../utils')
 
 const {SALT_ROUND} = process.env

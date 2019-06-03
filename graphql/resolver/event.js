@@ -3,7 +3,7 @@ const Event = require('../../models/events')
 
 // Utils
 const {
-  findAllEvents,
+  getAllEvents,
   userUtils,
   findUserById
 } = require('../../utils')
@@ -11,7 +11,7 @@ const {
 const eventResolvers = {
   events: async () => {
     try {
-      const events = await findAllEvents()
+      const events = await getAllEvents()
       const result = events.map(async (event) => {
         const {_doc} = event
 
