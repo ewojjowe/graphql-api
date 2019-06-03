@@ -124,19 +124,31 @@ const findBookingById = async (bookingId) => {
   }
 }
 
+const findBookingByIdWithEvent = async (bookingId) => {
+  const booking = await Booking.findById(bookingId).populate('event')
+
+  return booking
+}
+
 const getAllBooking = async () => {
   const booking = await Booking.find()
 
   return booking
 }
 
+const deleteBookindById = async (bookingId) => {
+  await Booking.deleteOne({_id: bookingId})
+}
+
 module.exports = {
+  findBookingByIdWithEvent,
+  deleteBookindById,
   singleEventUtils,
   findEventByTitle,
   findUserByEmail,
   findBookingById,
-  findEventById,
   getAllBooking,
+  findEventById,
   getAllEvents,
   findUserById,
   getAllUsers,
