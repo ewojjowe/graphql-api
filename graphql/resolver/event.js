@@ -3,23 +3,27 @@ const Event = require('../../models/events')
 
 // Utils
 const {
+  transformData,
   getAllEvents,
-  userUtils,
-  findUserById
-} = require('../../utils')
+  findUserById,
+} = require('../utils')
+
+// constants
+const queryType = require('../constants/queryType')
+const {EVENT} = queryType
 
 const eventResolvers = {
-  events: async () => {
+  events: async (args, req) => {
+    const {isAuth} = req
+
+    if (!isAuth) {
+      throw new Error('Not Authenticated!')
+    }
+
     try {
       const events = await getAllEvents()
       const result = events.map(async (event) => {
-        const {_doc} = event
-
-        return {
-          ..._doc,
-          date: new Date(_doc.date).toISOString(),
-          creator: userUtils.bind(this, _doc.creator)
-        }
+        return transformData(event, EVENT)
       })
 
       return result
@@ -27,7 +31,16 @@ const eventResolvers = {
       throw err
     }
   },
-  createEvent: async (args) => {
+  createEvent: async (args, req) => {
+    const {
+      userId,
+      isAuth
+    } = req
+
+    if (!isAuth) {
+      throw new Error('Not Authenticated!')
+    }
+
     const {
       title,
       description,
@@ -41,10 +54,10 @@ const eventResolvers = {
         description,
         price: +price,
         date: new Date(date),
-        creator: '5cf3dfc44dff4835ee143294'
+        creator: userId
       })
 
-      const user = await findUserById('5cf3dfc44dff4835ee143294')
+      const user = await findUserById(userId)
 
       if (!user) {
         throw new Error('Please Login')
@@ -55,10 +68,7 @@ const eventResolvers = {
       user.createdEvents.push(event)
       await user.save()
 
-      return {
-        ...result._doc,
-        creator: userUtils.bind(this, user.id)
-      }
+      return transformData(event, EVENT)
     } catch (err) {
       throw err
     }
