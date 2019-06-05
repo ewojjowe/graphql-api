@@ -63,7 +63,6 @@ const userResolvers = {
     }
 
     const isEqual = await bcrypt.compare(password, user.password)
-    console.log(isEqual)
 
     if (!isEqual) {
       throw new Error('Incorrect password!')
