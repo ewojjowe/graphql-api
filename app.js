@@ -8,6 +8,8 @@ const mongoose = require('mongoose')
 const graphQlResolver = require('./graphql/resolver')
 const graphQlSchema = require('./graphql/schema')
 
+const isAuth = require('./middleware/isAuth')
+
 const app = express()
 
 const {
@@ -29,6 +31,8 @@ mongoose.connect(
 }).catch((err) => {
 	console.log('Error: ', err)
 })
+
+app.use(isAuth)
 
 app.use('/graphql', graphqlHTTP({
 	schema: graphQlSchema,

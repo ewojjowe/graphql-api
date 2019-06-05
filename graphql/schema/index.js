@@ -13,6 +13,7 @@ const graphQlSchema = buildSchema(`
   type RootQuery {
     events: [Event!]!
     bookings: [Booking!]!
+    login(loginInput: LoginInput): AuthData!
   }
 
   # Root Mutation
