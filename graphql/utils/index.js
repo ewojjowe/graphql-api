@@ -1,7 +1,75 @@
 // models
-const Event = require('../models/events')
-const User = require('../models/users')
-const Booking = require('../models/bookings')
+const Event = require('../../models/events')
+const User = require('../../models/users')
+const Booking = require('../../models/bookings')
+
+const queryType = require('../constants/queryType')
+const {
+  USER_WITH_EVENT,
+  BOOKING,
+  EVENT,
+  USER
+} = queryType
+
+/**
+ * Convert Date to String datatype
+ * @param {Object} date - the date for conversion
+ * @return {<DateString>} newly converted date
+ */
+const dateToString = (date) => new Date(date).toISOString()
+
+/**
+ * Transform result data into desired format
+ * @param {Object} data - the data to transform
+ * @param {Object} type - the type of query
+ * @return {<transformedData>} newly formatted data
+ */
+const transformData = (data, type) => {
+  const {_doc} = data
+  let transformedData
+
+  switch(type) {
+    case 'CANCEL_BOOKING':
+      transformedData = {
+        ..._doc,
+        creator: userUtils.bind(this, _doc.creator)
+      }
+      break
+    case 'BOOKING':
+      transformedData = {
+        ..._doc,
+        user: userUtils.bind(this, _doc.user),
+        event: singleEventUtils.bind(this, _doc.event),
+        createdAt: dateToString(_doc.createdAt),
+        updatedAt: dateToString(_doc.updatedAt)
+      }
+      break
+    case 'EVENT':
+      transformedData = {
+        ..._doc,
+        date: dateToString(_doc.date),
+        creator: userUtils.bind(this, _doc.creator)
+      }
+      break
+    case 'USER_WITH_EVENT':
+      transformedData = {
+        ..._doc,
+        password: null,
+        createdEvents: eventsUtils.bind(this, _doc.createdEvents)
+      }
+      break
+    case 'USER':
+      transformedData = {
+        ..._doc,
+        password: null
+      }
+      break
+    default:
+      transformedData = 'Case not defined.'
+  }
+
+  return transformedData
+}
 
 /**
  * Retrieve an event based on a set of condition/s
@@ -18,11 +86,7 @@ const eventsUtils = async (eventIds) => {
   try {
     const events = await Event.find({ _id: { $in: eventIds } })
     const result = events.map(event => {
-      return {
-        ...event._doc,
-        date: new Date(event._doc.date).toISOString(),
-        creator: userUtils.bind(this, event.creator)
-      }
+      return transformData(event, EVENT)
     })
 
     return result
@@ -35,11 +99,7 @@ const singleEventUtils = async (eventId) => {
   try {
     const event = await Event.findById(eventId)
 
-    return {
-      ...event._doc,
-      date: new Date(event._doc.date).toISOString(),
-      creator: userUtils.bind(this, event.creator)
-    }
+    return transformData(event, EVENT)
   } catch (err) {
     throw err
   }
@@ -78,10 +138,7 @@ const userUtils = async userId => {
   try {
     const user = await User.findById(userId)
 
-    return {
-      ...user._doc,
-      createdEvents: eventsUtils.bind(this, user._doc.createdEvents)
-    }
+    return transformData(user, USER_WITH_EVENT)
   } catch (err) {
     throw err
   }
@@ -148,6 +205,7 @@ module.exports = {
   findUserByEmail,
   findBookingById,
   getAllBooking,
+  transformData,
   findEventById,
   getAllEvents,
   findUserById,
